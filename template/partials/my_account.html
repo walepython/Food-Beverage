@@ -1,0 +1,49 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'assets/css/dashboard.css' %}">
+
+<!-- Main content area -->
+<section class="main-content">
+  <h2 class="section-title">Account Overview</h2>
+
+  <!-- The grid container now wraps ALL the cards -->
+  <div class="info-grid">
+
+    <!-- Card 1: Account Details -->
+    <div class="card">
+      <h3>Account Details</h3>
+      <p class="name">{{ user.get_full_name|default:user.username }}</p>
+      <p class="email">{{ user.email }}</p>
+    </div>
+
+    <!-- Card 2: Address Book -->
+    <div class="card">
+      <h3>Address Book</h3>
+      {% if address %}
+        <address>
+          <strong>Your default shipping address:</strong><br>
+          {{ address.contact_name }}<br>
+          {{ address.address_line_1 }}<br>
+          {% if address.address_line_2 %}{{ address.address_line_2 }}<br>{% endif %}
+          {{ address.city }}, {{ address.state }}
+        </address>
+      {% else %}
+        <p class="text-muted">No default address set.</p>
+      {% endif %}
+      <a href="{% url 'edit_address' %}" class="edit-btn" title="Edit Address"><i class="fas fa-edit"></i></a>
+    </div>
+
+    <!-- Card 3: Store Credit -->
+    <div class="card">
+      <h3>Store Credit</h3>
+      <p class="credit">Store credit balance: <strong>₦0</strong></p>
+    </div>
+
+    <!-- Card 4: Newsletter (Example from Jumia screenshot) -->
+    <div class="card">
+        <h3>Newsletter Preferences</h3>
+        <p>Manage your email communications to stay updated with the latest news and offers.</p>
+        <a href="#" class="action-link">Edit Newsletter preferences</a>
+    </div>
+
+  </div> <!-- End of .info-grid -->
+</section> <!-- End of .main-content -->

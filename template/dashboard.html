@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load static %}
+{% block body %}
+
+<link rel="stylesheet" href="{% static 'assets/css/dashboard.css' %}">
+
+<div class="dashboard-container">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <h2 class="sidebar-title">
+      <i class="fas fa-user-circle"></i> My Account
+    </h2>
+    <nav class="sidebar-menu">
+      <a href="#" class="menu-link active" data-page="account"><i class="fas fa-user-circle"></i> my beverage account</a>
+      <a href="#" class="menu-link" data-page="orders"><i class="fas fa-box"></i> Orders</a>
+      <a href="#" class="menu-link" data-page="inbox"><i class="fas fa-envelope"></i> Inbox</a>
+      <a href="#" class="menu-link" data-page="reviews"><i class="fas fa-pencil-alt"></i> Pending Reviews</a>
+      <a href="#" class="menu-link" data-page="voucher"><i class="fas fa-ticket-alt"></i> Voucher</a>
+      <a href="#" class="menu-link" data-page="wishlist"><i class="fas fa-heart"></i> Wishlist</a>
+      <a href="#" class="menu-link" data-page="recent"><i class="fas fa-eye"></i> Recently Viewed</a>
+      <a href="#" class="menu-link" data-page="account"><i class="fas fa-user-cog"></i> Account Management</a>
+      <a href="#" class="menu-link" data-page="payment"><i class="fas fa-credit-card"></i> Payment Settings</a>
+       <a href="#" class="menu-link" data-page="profile_details"><i class="fas fa-user-circle"></i> My profile</a>
+    </nav>
+  </aside>
+
+  <!-- Main content (loads dynamically) -->
+  <section class="main-content" id="dashboard-content">
+    {% include 'partials/my_account.html' %}
+
+  </section>
+</div>
+
+<script>
+// Only run this code on dashboard pages
+if (window.location.pathname.includes('/dashboard')) {
+    document.addEventListener('DOMContentLoaded', function() {
+        const contentContainer = document.getElementById('dashboard-content');
+        const menuLinks = document.querySelectorAll('.menu-link');
+
+        if (!contentContainer) {
+            console.error('Dashboard content container not found');
+            return;
+        }
+
+        if (menuLinks.length === 0) {
+            console.error('No menu links found');
+            return;
+        }
+
+        menuLinks.forEach(link => {
+            link.addEventListener('click', (event) => {
+                event.preventDefault();
+                const page = link.getAttribute('data-page');
+                const url = `/page/dashboard/${page}/`;
+
+                console.log(`Fetching content from: ${url}`);
+                contentContainer.innerHTML = '<p>Loading...</p>';
+
+                menuLinks.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) throw new Error(`Network response was not ok (${response.status})`);
+                        return response.text();
+                    })
+                    .then(html => {
+                        contentContainer.innerHTML = html;
+                    })
+                    .catch(error => {
+                        console.error('Error loading section:', error);
+                        contentContainer.innerHTML = '<p class="error">Error loading content. Please try again.</p>';
+                    });
+            });
+        });
+    });
+}
+</script>
+
+
+{% endblock %}

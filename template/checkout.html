@@ -1,0 +1,55 @@
+
+
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block body %}
+
+<link rel="stylesheet" href="{% static 'assets/css/templatemo-sixteen2.css' %}">
+<div class="page-heading about-heading header-text">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="text-content">
+                    <h4>Your Shopping Cart</h4>
+                    <h2>Manage Your Items</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form class="form" action="{% url 'checkout' %}" method="post">
+    {% csrf_token %}
+
+  <label class="form1" for="contact_name">FullName</label>
+  <input class="form2" type="text" id="contact_name" name="contact_name" placeholder="Full Name" required>
+
+  <label class="form1" for="contact_phone">Phone.No</label>
+  <input class="form2" type="text" id="contact_phone" name="contact_phone" placeholder="Phone" required>
+
+  <label class="form1" for="home_address">Home Address</label>
+  <input class="form2" type="text" id="home_address" name="address_line_1" placeholder="Street Address" required>
+
+  <label class="form1" for="street_address">Street Address</label>
+  <input class="form2" type="text" id="street_address" name="address_line_2" placeholder="Apt, Suite, etc.">
+
+  <label class="form1" for="city">City</label>
+  <input class="form2" type="text" id="city" name="city" placeholder="City" required>
+
+  <label class="form1" for="state">State</label>
+  <input class="form2" type="text" id="state" name="state" placeholder="State" required>
+
+  <label class="form1" for="postal">Postal Code</label>
+  <input class="form2" type="text" id="postal" name="postal_zip_code" placeholder="Zip Code" required>
+
+  <label class="form1" for="country">Country</label>
+  <input class="form2" type="text" id="country" name="country" placeholder="Country" required>
+
+  <!-- Optional (1 field) -->
+  <label><input type="checkbox" name="is_default"> Set as default address</label>
+
+  <button type="submit">Complete Checkout</button>
+</form>
+{% endblock %}

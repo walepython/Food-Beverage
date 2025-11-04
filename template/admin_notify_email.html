@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>New User Registered</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f8f8f8; color: #333; padding: 20px; }
+    .container { background: white; padding: 20px; border-radius: 10px; max-width: 600px; margin: auto; }
+    h2 { color: #2c3e50; }
+    .info { margin-top: 15px; }
+    .footer { font-size: 13px; color: #999; margin-top: 30px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>New User Registration Alert 🚀</h2>
+    <p>A new user has just registered on <strong>FoodBeverage</strong>.</p>
+
+    <div class="info">
+      <p><strong>Full Name:</strong> {{ firstname }} {{ lastname }}</p>
+      <p><strong>Username:</strong> {{ username }}</p>
+      <p><strong>Email:</strong> {{ email }}</p>
+      <p><strong>Date:</strong> {{ year }}</p>
+    </div>
+
+    <p>Keep track of user activity from your admin dashboard.</p>
+
+    <div class="footer">
+      &copy; {{ year }} FoodBeverage Admin Notification
+    </div>
+  </div>
+</body>
+</html>

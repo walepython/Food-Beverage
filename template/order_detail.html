@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %} <!-- For number formatting -->
+
+{% block title %}Order #{{ order.id }} - Details{% endblock %}
+
+{% block body %}
+<link rel="stylesheet" href="{% static 'assets/css/order.css' %}">
+<div class="page-heading about-heading header-text">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="text-content">
+                    <h4>Order Details</h4>
+                    <h2>Review Your Purchase</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="order-details-container">
+
+    <!-- Header -->
+    <div class="order-header">
+        <h1 class="order-title">Order Details ({{ order_items|length }})</h1>
+    </div>
+
+    <!-- Order Items Table -->
+    <div class="order-items-table">
+
+        <!-- Table Header -->
+        <div class="table-header">
+            <div class="product-name">Product Name</div>
+            <div class="product-code">Product Code</div>
+            <div class="quantity">Quantity</div>
+            <div class="price">Price</div>
+            <div class="actions">Actions</div>
+        </div>
+
+        <!-- Table Body -->
+        <div class="table-body">
+            {% for item in order_items %}
+            <div class="table-row">
+
+                <!-- Product Name Cell -->
+                <div class="table-cell product-name">
+                    {% if item.product.image %}
+                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="item-image">
+                    {% endif %}
+                    <div class="item-info">
+                        <span class="item-title">{{ item.product.name }}</span>
+                        <span class="item-meta">Qty: {{ item.quantity}}</span>
+                    </div>
+                </div>
+
+                <!-- Product Code Cell -->
+                <div class="table-cell product-code">
+                    <span>{{ item.order.reference_code }}</span>
+                </div>
+
+                <!-- Quantity Cell -->
+                <div class="table-cell quantity">
+                    <span>x{{ item.quantity }}</span>
+                </div>
+
+                <!-- Price Cell -->
+                <div class="table-cell price">
+                    <span>₦{{ item.get_subtotal|intcomma }}</span>
+                </div>
+
+                <!-- Actions Cell -->
+                <div class="table-cell actions">
+                    <a href="#" class="edit-btn" title="Edit Item">
+                        <i class="fas fa-pencil-alt"></i>
+                    </a>
+                </div>
+
+            </div>
+            {% empty %}
+            <p class="empty-message">No items found for this order.</p>
+            {% endfor %}
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

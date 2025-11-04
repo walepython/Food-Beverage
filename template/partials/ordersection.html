@@ -1,0 +1,49 @@
+
+
+{% load static %}
+  <link rel="stylesheet" href="{% static 'assets/css/dashboard.css' %}">
+
+    <div class="max-w-7xl mx-auto p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
+
+  <!-- Orders Section -->
+  <section class="md:col-span-3">
+    <h2 class="section-title">My Orders</h2>
+{% if orders %}
+  <table class="order-table">
+    <thead>
+      <tr>
+        <th>Order #</th>
+        <th>Date</th>
+        <th>Status</th>
+        <th>Total</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+      <tr>
+        <td>{{ order.id }}</td>
+        <td>{{ order.date_ordered|date:"M d, Y" }}</td>
+        <td>
+          <span class="status {{ order.status|lower }}">{{ order.status|title }}</span>
+        </td>
+        <td>₦{{ order.total_price|floatformat:2 }}</td>
+        <td>
+          <a href="{% url 'order_detail' order.id %}" class="btn btn-primary">View Details</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>You have no recent orders.</p>
+{% endif %}
+
+  </section>
+</div>
+
+
+
+
+
+

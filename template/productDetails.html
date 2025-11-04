@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} - Details{% endblock %}
+{% block body %}
+
+
+<link rel="stylesheet" href="{% static 'assets/css/templatemo-sixteen2.css' %}">
+ <div class="product-detail-container">
+
+    <!-- Left Side: Product Image Gallery -->
+    <div class="product-gallery">
+        <div class="main-image">
+            {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}">
+            {% else %}
+                <img src="{% static 'assets/images/product_01.jpg' %}" alt="Placeholder Image">
+            {% endif %}
+            <!-- Gallery navigation arrows -->
+            <button class="gallery-nav prev">&lt;</button>
+            <button class="gallery-nav next">&gt;</button>
+        </div>
+        <!-- You can add thumbnail images here if you have a multi-image model -->
+    </div>
+
+    <!-- Right Side: Product Information -->
+    <div class="product-info">
+        <!-- Category and Share Button -->
+        <div class="info-header">
+            <span class="category">{{ product.category }}</span>
+            <button class="share-button">
+                <i class="fa fa-share-alt"></i> <!-- Font Awesome share icon -->
+            </button>
+        </div>
+
+        <!-- Product Title -->
+        <h3 class="share-button1">{{ product.sub_category }}</h3>
+        <h1 class="product-title">{{ product.name }}</h1>
+
+        <!-- Rating and Reviews -->
+        <div class="product-rating">
+            <div class="stars">
+                <!-- Logic to generate stars based on 'average_rating' -->
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star-half-alt"></i>
+            </div>
+            <span class="rating-value">{{ product.average_rating }}</span>
+            <a href="#reviews" class="review-count">{{product.review_count }} Reviews</a>
+        </div>
+
+        <!-- Price Box -->
+        <div class="price-box">
+            <div class="price-line">
+                <span id="product-price" class="current-price">₦{{ product.price }}</span>
+                {% if product.old_price and product.old_price > product.price %}
+                    <span class="old-price">₦{{ product.old_price }}</span>
+                {% endif %}
+            </div>
+            {% if product.discount_percent > 0 %}
+                <span class="save-badge">Save {{ product.discount_percent }}%</span>
+            {% endif %}
+            <div class="stock-status">
+                {% if product.stock_quantity > 0 %}
+                    <i class="fa fa-check-circle in-stock"></i> In Stock
+                    <span class="stock-count">({{ product.stock_quantity }} items left)</span>
+                {% else %}
+                    <i class="fa fa-times-circle out-of-stock"></i> Out of Stock
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Product Description -->
+        <p class="product-description">{{ product.description|slice:":150" }}...</p>
+
+           {% if price_options %}
+             <input type="hidden" id="price_per_paint" value="{{ product.price_per_bag }}">
+             <input type="hidden" id="price_per_bag" value="{{ product.price_per_paint }}">
+                      <label for="price_choice">Choose Package:</label>
+                     <select id="price_choice" class="form-select"
+                    data-price-bag="{{ product.price_per_bag }}"
+                    data-price-paint="{{ product.price_per_paint }}"
+                    data-price-tuba="{{ product.price_per_paint }}"
+                    data-price-pack="{{ product.price_per_bag }}">
+              {% for value, label in price_options %}
+                <option value="{{ value }}">{{ label }}</option>
+              {% endfor %}
+            </select>
+
+        {% endif %}
+
+
+        <!--Quantity Option-->
+         <p class="qty">Quantity</p>
+         <div class="quantity-selector">
+               <button id="decrease" class="quantity-btn">−</button>
+               <input id="quantity" type="text" class="quantity-input" value="1">
+               <button id="increase" class="quantity-btn">+</button>
+         </div>
+        <!-- Add to Cart  -->
+        <div class="cart-view1">
+             <form method="POST" action="{% url 'add_to_cart' product.id %}">
+              {% csrf_token %}
+                <input type="hidden" name="price_choice" id="selected-package">
+                <input type="hidden" name="selected_price" id="selected-price">
+                <input type="hidden" name="quantity" id="selected-quantity" value="1">
+                <button type="submit">Add to Cart</button>
+            </form>
+
+        </div>
+
+    </div>
+      <!-- Vendor Info -->
+    {% if product.vendor %}
+    <div class="vendor-box mt-5">
+      <h3>Sold by: {{ product.vendor.username }}</h3>
+      <p>Contact vendor for bulk or special orders.</p>
+    </div>
+    {% endif %}
+</div>
+
+   <!-- "Back to Top" button -->
+   <button class="back-to-top" title="Go to top">↑</button>
+
+
+
+
+  <script>
+document.addEventListener("DOMContentLoaded", function () {
+    const select = document.getElementById("price_choice");
+    const priceDisplay = document.getElementById("product-price");
+    const selectedPackageInput = document.getElementById("selected-package");
+    const selectedPriceInput = document.getElementById("selected-price");
+    const selectedQuantityInput = document.getElementById("selected-quantity");
+    const quantityInput = document.getElementById("quantity");
+
+    if (!select || !priceDisplay) return;
+
+    select.addEventListener("change", function () {
+        const value = select.value;
+        const priceMap = {
+            Per_bag: select.dataset.priceBag,
+            Per_paint: select.dataset.pricePaint,
+            Per_tuba: select.dataset.priceTuba,
+            Per_pack: select.dataset.pricePack,
+        };
+
+        const selectedPrice = priceMap[value];
+        if (selectedPrice) {
+            priceDisplay.textContent = `₦${parseFloat(selectedPrice).toFixed(2)}`;
+            selectedPackageInput.value = value;
+            selectedPriceInput.value = selectedPrice;
+        }
+    });
+
+    // Set initial values
+    selectedPackageInput.value = select.value;
+    selectedPriceInput.value = priceDisplay.textContent.replace("₦", "").trim();
+
+    // Quantity buttons
+    document.getElementById("increase").onclick = () => {
+        quantityInput.value++;
+        selectedQuantityInput.value = quantityInput.value;
+    };
+    document.getElementById("decrease").onclick = () => {
+        if (quantityInput.value > 1) {
+            quantityInput.value--;
+            selectedQuantityInput.value = quantityInput.value;
+        }
+    };
+
+    // Update quantity hidden field when input changes
+    quantityInput.addEventListener("change", function() {
+        selectedQuantityInput.value = this.value;
+    });
+});
+</script>
+{% endblock %}
+
+
+
+
+
+{% comment %}
+<div class="product-page">
+  <div class="container py-5">
+
+    <!-- Product Card -->
+    <div class="product-card row">
+      <!-- Left Column: Image -->
+      <div class="col-md-6 text-center">
+        {% if product.image %}
+          <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+        {% else %}
+          <img src="{% static 'images/no-image.png' %}" alt="No image available" class="product-image">
+        {% endif %}
+      </div>
+
+      <!-- Right Column: Details -->
+      <div class="col-md-6">
+        <p class="product-category">{{ product.category }}</p>
+        <h1 class="product-title">{{ product.name }}</h1>
+
+        <!-- Rating -->
+        <div class="rating-box mb-3">
+          <div class="stars">★★★★<span class="inactive">★</span></div>
+          <span class="rating-score">{{ product.average_rating }}</span>
+          <a href="#reviews" class="review-link">({{ product.review_count }} Reviews)</a>
+        </div>
+
+        <!-- Price -->
+        <div class="price-box">
+          <p class="current-price">₦{{ product.price }}</p>
+          {% if product.old_price and product.old_price > product.price %}
+            <p class="old-price">₦{{ product.old_price }}</p>
+          {% endif %}
+          {% if product.discount_percent > 0 %}
+            <p class="discount">You save {{ product.discount_percent }}%</p>
+          {% endif %}
+        </div>
+
+        <!-- Description -->
+        <p class="product-description">{{ product.description }}</p>
+
+        <!-- Stock Info -->
+        {% if product.is_available %}
+          <p class="stock in-stock">
+            <span class="dot green"></span> In Stock ({{ product.stock_quantity }} items left)
+          </p>
+        {% else %}
+          <p class="stock out-of-stock">
+            <span class="dot red"></span> Out of Stock
+          </p>
+        {% endif %}
+
+        <!-- Quantity & Button -->
+        <div class="add-to-cart-box">
+          <div class="quantity-box">
+            <button id="decrease" class="qty-btn">−</button>
+            <input id="quantity" type="number" value="1" min="1" class="qty-input" />
+            <button id="increase" class="qty-btn">+</button>
+          </div>
+          <button class="add-btn">Add to Cart</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vendor Info -->
+    {% if product.vendor %}
+    <div class="vendor-box mt-5">
+      <h3>Sold by: {{ product.vendor.username }}</h3>
+      <p>Contact vendor for bulk or special orders.</p>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endcomment %}

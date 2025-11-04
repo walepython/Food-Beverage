@@ -1,0 +1,169 @@
+/* --- Custom Order Details Page Styling --- */
+
+.order-details-container {
+    max-width: 1100px;
+    margin: 60px auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.order-header {
+    margin-bottom: 25px;
+}
+
+.order-title {
+    font-size: 1.5rem; /* 24px */
+    font-weight: 600;
+    color: #333;
+}
+
+/* --- The Table Structure --- */
+.order-items-table {
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- Table Header --- */
+.table-header {
+    display: flex;
+    justify-content:space-evenly;
+    gap:30px;
+    align-items:center;
+    background-color: #a491d2; /* The purple color from the image */
+    color:#fff;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+
+}
+
+/* --- Table Body & Rows --- */
+.table-body {
+    /* No special styling needed */
+}
+
+.table-row {
+    display: flex;
+    justify-content:space-evenly;
+    margin-left:35px;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #f0f0f0;
+
+}
+.table-row:last-child {
+    border-bottom: none;
+}
+
+/* --- Column Widths and Styling --- */
+.table-cell {
+    display: flex;
+    align-items: center;
+
+}
+
+.table-cell.product-name {
+    flex: 3; /* Take up 3 units of space */
+
+}
+.table-cell.product-code {
+    flex: 1.99;
+    color: #6c757d;
+}
+.table-cell.quantity {
+    flex: 1.9;
+    color: #333;
+    font-weight: 500;
+}
+.table-cell.price {
+    flex: 1.8;
+    color: #a491d2; /* Purple to match the header */
+    font-weight: 600;
+}
+.table-cell.actions {
+    flex: 1.2;
+    justify-content: flex-start; /* Push the icon to the right */
+}
+
+/* --- Individual Item Styling --- */
+.item-image {
+    width: 45px;
+    height: 45px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+.item-info {
+    display: flex;
+    flex-direction: column;
+}
+.item-title {
+    font-weight: 600;
+    color: #212529;
+}
+.item-meta {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.edit-btn {
+    color: #333;
+    text-decoration: none;
+    font-size: 1rem;
+}
+.edit-btn:hover {
+    color: #a491d2;
+}
+
+.empty-message {
+    text-align: center;
+    padding: 3rem;
+    color: #6c757d;
+}
+
+
+/* --- Responsive for Mobile --- */
+@media (max-width: 768px) {
+    .order-details-container {
+        padding: 10px;
+        margin: 20px auto;
+    }
+
+    /* Hide the table header on mobile */
+    .table-header {
+        display: none;
+    }
+
+    /* Stack the table rows vertically */
+    .table-row {
+        flex-wrap: wrap; /* Allow items to wrap */
+        position: relative;
+        padding: 1rem 0;
+    }
+
+    .table-cell {
+        /* Make each cell take full width and add labels */
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    .table-cell::before {
+        content: attr(data-label); /* Use a data-label for mobile view, if you add it */
+        font-weight: bold;
+        margin-right: 10px;
+    }
+
+    .table-cell.product-name { order: 1; }
+    .table-cell.product-code { order: 3; }
+    .table-cell.quantity { order: 4; }
+    .table-cell.price { order: 2; font-size: 1.1rem; }
+
+    .table-cell.actions {
+        position: absolute;
+        top: 1rem;
+        right: 0;
+    }
+}

@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body %}
+<link rel="stylesheet" href="{% static 'assets/css/templatemo-sixteen2.css' %}">
+
+<style>
+  body {
+    background: #f4f6f9;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  .form-container {
+    max-width: 400px;
+    margin: 120px auto;
+    background: #fff;
+    padding: 40px 50px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .form-container h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #333;
+  }
+
+  .form-container input[type="text"],
+  .form-container input[type="password"],
+  .form-container input[type="email"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 18px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.3s ease;
+  }
+
+  .form-container input:focus {
+    border-color: #ff6b6b;
+  }
+
+  .form-container input[type="submit"] {
+    width: 100%;
+    background-color: #ff6b6b;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .form-container input[type="submit"]:hover {
+    background-color: #ff5252;
+  }
+
+  .message {
+    text-align: center;
+    color: #ff5252;
+    margin-top: 15px;
+  }
+
+  .reset-link {
+    text-align: center;
+    margin-top: 15px;
+  }
+
+  .reset-link a {
+    color: #ff6b6b;
+    text-decoration: none;
+    font-size: 14px;
+  }
+
+  .reset-link a:hover {
+    text-decoration: underline;
+  }
+
+  /* Modal Styles */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+  }
+
+  .modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  }
+
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .close:hover {
+    color: #000;
+  }
+</style>
+
+<div id="preloader">
+  <div class="jumper"><div></div><div></div><div></div></div>
+</div>
+
+<div class="form-container">
+  <h2>Login</h2>
+  <form action="{% url 'login' %}" method="post">
+    {% csrf_token %}
+    <input type="text" name="username" placeholder="Username" required>
+    <input type="password" name="password" placeholder="Password" required>
+    <input type="submit" value="Login">
+  </form>
+
+  <div class="reset-link">
+    <a href="#" id="forgot-password-link">Forgot Password?</a>
+  </div>
+
+  {% for message in messages %}
+  <div class="message">{{ message }}</div>
+  {% endfor %}
+</div>
+
+<!-- Forgot Password Modal -->
+<div id="resetModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2 style="text-align: center; margin-bottom: 20px;">Reset Password</h2>
+    <form id="resetForm" method="post" action="{% url 'password_reset' %}">
+      {% csrf_token %}
+      <input type="email" name="email" placeholder="Enter your email" required>
+      <input type="submit" value="Send Reset Link" style="margin-top: 10px;">
+    </form>
+  </div>
+</div>
+
+<script>
+  // Modal functionality
+  const modal = document.getElementById("resetModal");
+  const btn = document.getElementById("forgot-password-link");
+  const span = document.getElementsByClassName("close")[0];
+
+  btn.onclick = function(e) {
+    e.preventDefault();
+    modal.style.display = "block";
+  }
+
+  span.onclick = function() {
+    modal.style.display = "none";
+  }
+
+  window.onclick = function(event) {
+    if (event.target == modal) {
+      modal.style.display = "none";
+    }
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'assets/css/dashboard.css' %}">
+
+<h2 class="section-title">My Profile</h2>
+
+<!-- Profile Header -->
+<div class="profile-header">
+    <div class="profile-image">
+        {% if profile.image %}
+            <img src="{{ profile.image.url }}" alt="Profile Picture">
+        {% else %}
+            <img src="{% static 'assets/images/Avaterimages.jpg' %}" alt="Default Profile">
+        {% endif %}
+    </div>
+    <div class="profile-basic-info">
+        <h3>{{ profile.fullName|default:profile.user.username|title }}</h3>
+        <p><span class="user-role-badge">{{ user.user_type|title }}</span></p>
+    </div>
+</div>
+
+<!-- Profile Info Details -->
+<div class="profile-info">
+    <div class="info-row">
+        <span class="label">Full Name:</span>
+        <span class="value">{{ user.first_name|default:"Not provided" }}</span>
+    </div>
+    <div class="info-row">
+        <span class="label">Username:</span>
+        <span class="value">{{ user.username }}</span>
+    </div>
+    <div class="info-row">
+        <span class="label">Email:</span>
+        <span class="value">{{ user.email }}</span>
+    </div>
+    <div class="info-row">
+        <span class="label">Phone:</span>
+        <span class="value">{{ profile.phone|default:"Not set" }}</span>
+    </div>
+    <div class="info-row">
+        <span class="label">Date of Birth:</span>
+        <span class="value">
+            {% if profile.DOB %}{{ profile.DOB|date:"d M, Y" }}{% else %}Not set{% endif %}
+        </span>
+    </div>
+    <div class="info-row">
+        <span class="label">Gender:</span>
+        <span class="value">{{ profile.gender|title|default:"Not set" }}</span>
+    </div>
+</div>
+
+<!-- Profile Footer -->
+<div class="profile-footer">
+    <a href="{% url 'edit_profile' profile.id %}" class="btn-edit">
+        Edit Profile
+    </a>
+</div>

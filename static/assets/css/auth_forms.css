@@ -1,0 +1,133 @@
+/* ============================= */
+/* PASSWORD RESET MODAL STYLING  */
+/* ============================= */
+
+/* Hide modal by default */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease-in-out;
+  z-index: 9999;
+}
+
+/* Show modal when active */
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* Modal content box */
+.modal-content {
+  background: #fff;
+  width: 90%;
+  max-width: 420px;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  position: relative;
+  font-family: "Poppins", sans-serif;
+  transform: translateY(-20px);
+  animation: slideIn 0.3s ease forwards;
+}
+
+/* Animation */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Close button */
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: none;
+  border: none;
+  font-size: 1.6rem;
+  color: #666;
+  cursor: pointer;
+}
+.modal-close:hover {
+  color: #ff6600;
+}
+
+/* Heading */
+.modal-content h2 {
+  text-align: center;
+  font-size: 1.5rem;
+  color: #222;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+/* Form fields */
+.modal-content .form-group {
+  margin-bottom: 1.2rem;
+}
+.modal-content label {
+  display: block;
+  font-size: 0.95rem;
+  margin-bottom: 0.4rem;
+}
+.modal-content input[type="email"] {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  outline: none;
+  transition: border 0.3s ease;
+}
+.modal-content input[type="email"]:focus {
+  border-color: #ff6600;
+}
+
+/* Button */
+.modal-submit-btn {
+  width: 100%;
+  padding: 0.9rem;
+  border: none;
+  border-radius: 8px;
+  background: #ff6600;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.modal-submit-btn:hover {
+  background: #e65c00;
+  transform: translateY(-2px);
+}
+
+/* Forgot link */
+.forgot-password-link {
+  text-align: center;
+  margin-top: 1rem;
+}
+.forgot-password-link a {
+  color: #ff6600;
+  text-decoration: none;
+  font-weight: 500;
+}
+.forgot-password-link a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .modal-content {
+    padding: 1.5rem;
+  }
+}

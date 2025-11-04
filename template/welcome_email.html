@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Welcome to FoodBeverage!</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fafafa;
+      color: #333;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      max-width: 600px;
+      margin: auto;
+    }
+    h2 {
+      color: #c0392b;
+    }
+    .footer {
+      font-size: 13px;
+      color: #888;
+      margin-top: 30px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Welcome to FoodBeverage, {{ name }}! 🍽️</h2>
+    <p>We’re thrilled to have you join our community.</p>
+    <p>Explore our delicious products, enjoy special offers, and order with ease.</p>
+    <p>Start shopping now and make every meal a delightful experience!</p>
+
+    <p>Best regards,<br><strong>The FoodBeverage Team</strong></p>
+
+    <div class="footer">
+      &copy; {{ year }} FoodBeverage. All rights reserved.
+    </div>
+  </div>
+</body>
+</html>

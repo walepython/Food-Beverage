@@ -1,0 +1,274 @@
+
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="stylesheet" href="{% static 'assets/css/templatemo-sixteen2.css' %}">
+    <link href="https://fonts.googleapis.com/css?family=Poppins:100,200,300,400,500,600,700,800,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'assets/css/header.css' %}">
+
+    <title>{% block title %}Food&Beverage{% endblock %}</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+
+    <!-- Additional CSS Files -->
+    <link rel="stylesheet" href="{% static 'assets/css/fontawesome.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/owl.css' %}">
+
+
+  </head>
+
+  <body >
+
+    <!-- Top Bar (Jumia Style) -->
+    <div class="top-bar">
+      <div class="container">
+        <div class="row ">
+
+          <div class="col-md-6">
+            <div class="user-menu d-flex justify-content-end">
+              {% if user.is_authenticated %}
+                <span class="user-greeting">
+                  <i class="fas fa-user"></i> Hi, {{ user.username|upper }}
+                </span>
+                <div class="user-dropdown">
+                  <a href="javascript:void(0)">
+                    <i class="fas fa-caret-down"></i> Account
+                  </a>
+                  <div class="dropdown-content">
+                    {% if user.is_staff or user.is_superuser %}
+                      <a href="{% url 'admin:index' %}"><i class="fas fa-cog"></i> Admin Dashboard</a>
+                    {% else %}
+                      <a href="{% url 'dashboard' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    {% endif %}
+                    {% comment %}
+                    <a href="{% url 'profile' %}"><i class="fas fa-user-edit"></i> Profile</a>
+                    {% endcomment %}
+                    <a href="{% url 'orders' %}"><i class="fas fa-shopping-bag"></i> Orders</a>
+                    <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                  </div>
+                </div>
+              {% else %}
+                <a href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="{% url 'register' %}"><i class="fas fa-user-plus"></i> Register</a>
+              {% endif %}
+
+              <div class="help-dropdown">
+                <a href="javascript:void(0)">
+                  <i class="fas fa-question-circle"></i> Help
+                </a>
+                <div class="dropdown-content">
+                  {% comment%}
+                  <a href="{% url 'faq' %}"><i class="fas fa-question"></i> FAQ</a>
+                  <a href="{% url 'contact' %}"><i class="fas fa-headset"></i> Contact Support</a>
+                  <a href="{% url 'shipping' %}"><i class="fas fa-shipping-fast"></i> Shipping Info</a>
+                  {% endcomment %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+       <!-- ***** The Corrected Header ***** -->
+    <header>
+      <div class="container01 header-container">
+
+        <!-- CATEGORY FILTER MENU (beside logo) -->
+        <button id="category-menu-btn" class="menu-toggler" type="button" aria-label="Open category filter">
+          <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Brand Logo -->
+        <a class="navbar-brand" href="{% url 'index' %}">
+          <h2>FOOD<em>BEVERAGE</em></h2>
+        </a>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+          <form method="GET" action="{% url 'product' %}" class="search-form">
+            <input type="text" class="search-input" name="q" placeholder="Search products, brands and categories" value="{{ request.GET.q }}">
+            <button type="submit" class="search-button"><i class="fas fa-search"></i></button>
+          </form>
+        </div>
+
+        <!-- Desktop Navigation -->
+        <div id="head-navbar">
+          <ul id="head-navbar1">
+            <li class="nav-item {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
+              <a class="nav-link" href="{% url 'index' %}">Home</a>
+            </li>
+            <li class="nav-item {% if request.resolver_match.url_name == 'product' %}active{% endif %}">
+              <a class="nav-link" href="{% url 'product' %}">Products</a>
+            </li>
+            <li class="nav-item {% if request.resolver_match.url_name == 'about' %}active{% endif %}">
+              <a class="nav-link" href="{% url 'about' %}">About</a>
+            </li>
+            <li class="nav-item {% if request.resolver_match.url_name == 'contact' %}active{% endif %}">
+              <a class="nav-link" href="{% url 'contact' %}">Contact</a>
+            </li>
+            <a href="{% url 'cart' %}" class="cart-link">
+              <i class="fas fa-shopping-cart"></i>
+              {% if cart_item_count > 0 %}
+                <span class="cart-count">{{ cart_item_count }}</span>
+              {% endif %}
+            </a>
+          </ul>
+
+          <!-- SIDEBAR MENU ICON (for mobile/medium screens) -->
+          <button id="sidebar-menu-btn" class="menu-toggler1" type="button" aria-label="Open sidebar menu">
+            <i class="fas fa-bars"></i>
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- End of Header -->
+
+    <!-- Category Filter Sidebar -->
+<div id="category-menu" class="side-menu">
+  <h4>Shop by Category</h4>
+  <ul>
+    {% for category in cats %}
+      <li>
+          <!-- The link now includes the query parameter -->
+          <a href="{% url 'product' %}?category={{ category|slugify }}"
+             class="{% if selected_category == category %}active{% endif %}">
+              {{ category|title }}
+          </a>
+      </li>
+    {% empty %}
+        <li>No categories available</li>
+    {% endfor %}
+  </ul>
+</div>
+
+
+<!-- Mobile Navigation Sidebar -->
+<div id="sidebar-menu" class="side-menu2">
+  <h4>Menu</h4>
+  <ul>
+    <li><a href="{% url 'index' %}">Home</a></li>
+    <li><a href="{% url 'product' %}">Products</a></li>
+    <li><a href="{% url 'about' %}">About</a></li>
+    <li><a href="{% url 'contact' %}">Contact</a></li>
+    <li><a href="{% url 'cart' %}">Cart</a></li>
+  </ul>
+      <div class="sidebar-search">
+    <form method="GET" action="{% url 'product' %}" class="sidebar-search-form">
+      <input
+        type="text"
+        class="sidebar-search-input"
+        name="q"
+        placeholder="Search products, brands and categories"
+        value="{{ request.GET.q }}"
+      >
+      <button type="submit" class="sidebar-search-button">
+        search
+      </button>
+    </form>
+  </div>
+  </div>
+
+    <!-- Page Content -->
+    <div class="page-content">
+        {% block body %}
+        {% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="inner-content">
+              <p>Copyright &copy; 2024 Food&Beverage Co., Ltd.
+                - Design: <a rel="nofollow noopener" href="https://templatemo.com" target="_blank">TemplateMo</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+
+    <!-- Additional Scripts -->
+    <script src="{% static 'assets/js/custom.js' %}"></script>
+    <script src="{% static 'assets/js/owl.js' %}"></script>
+    <script src="{% static 'assets/js/slick.js' %}"></script>
+    <script src="{% static 'assets/js/isotope.js' %}"></script>
+    <script src="{% static 'assets/js/accordions.js' %}"></script>
+
+    <script>
+      // Search functionality
+      document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.querySelector('.search-input');
+        const searchForm = document.querySelector('form');
+
+        // Optional: Add search suggestions or auto-complete here
+      });
+
+      // Mobile menu enhancement
+      //document.querySelector('.navbar-toggler').addEventListener('click', function() {
+        //document.body.classList.toggle('menu-open');
+      //});
+
+
+    </script>
+
+
+
+    <script language = "text/Javascript">
+      cleared[0] = cleared[1] = cleared[2] = 0; //set a cleared flag for each field
+      function clearField(t){                   //declaring the array outside of the
+      if(! cleared[t.id]){                      // function makes it static and global
+          cleared[t.id] = 1;  // you could use true and false, but that's more typing
+          t.value='';         // with more chance of typos
+          t.style.color='#fff';
+          }
+      }
+    </script>
+
+  <script>
+  // Category menu toggle
+  const categoryBtn = document.getElementById('category-menu-btn');
+  const categoryMenu = document.getElementById('category-menu');
+  const sidebarBtn = document.getElementById('sidebar-menu-btn');
+  const sidebarMenu = document.getElementById('sidebar-menu');
+
+  categoryBtn.addEventListener('click', () => {
+    categoryMenu.classList.toggle('open');
+    sidebarMenu.classList.remove('open'); // close the other one
+  });
+
+  sidebarBtn.addEventListener('click', () => {
+    sidebarMenu.classList.toggle('open');
+    categoryMenu.classList.remove('open'); // close the other one
+  });
+
+  // Close menus on outside click
+  document.addEventListener('click', (e) => {
+    if (!categoryMenu.contains(e.target) && !categoryBtn.contains(e.target)) {
+      categoryMenu.classList.remove('open');
+    }
+    if (!sidebarMenu.contains(e.target) && !sidebarBtn.contains(e.target)) {
+      sidebarMenu.classList.remove('open');
+    }
+  });
+</script>
+
+
+
+  </body>
+
+</html>

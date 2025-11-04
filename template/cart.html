@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %} <!-- Django's humanize library for nice number formatting -->
+
+{% block body %}
+
+<link rel="stylesheet" href="{% static 'assets/css/templatemo-sixteen2.css' %}">
+<div class="page-heading about-heading header-text">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="text-content">
+                    <h4>Your Shopping Cart</h4>
+                    <h2>Manage Your Items</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="cart-container container py-5">
+  <div class="row">
+
+    <!-- LEFT: Cart Items -->
+    <div class="col-lg-8">
+      <div class="cart-items-card">
+        <div class="card-header">
+          <h5 class="mb-0">Your Cart</h5>
+          <span id="cart-item-count" class="item-count">{{ cart_items|length }} item(s)</span>
+        </div>
+        <div class="card-body">
+          {% if cart_items %}
+            {% for item in cart_items %}
+            <div class="cart-item-row" id="cart-item-{{ item.product.id }}" data-product-id="{{ item.product.id }}" data-product-price="{{ item.product.price }}">
+
+              <div class="item-image">
+                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+              </div>
+              <div class="item-details">
+                <h6 class="item-title">{{ item.product.name }}</h6>
+                <small class="item-category">{{ item.product.category }}</small>
+
+              </div>
+              <small class="item-quantity-display">Quantity: {{ item.quantity }}</small>
+
+              <div class="item-quantity-controls">
+                <button class="quantity-btn decrease-qty-btn" type="button">−</button>
+                <input type="number" value="{{ item.quantity }}" class="quantity-input">
+                <button class="quantity-btn increase-qty-btn" type="button">+</button>
+              </div>
+              <div class="item-price">
+                <span class="current-price item-subtotal">₦{{ item.subtotal|floatformat:2|intcomma }}</span>
+                {% if item.product.old_price and item.product.old_price > item.product.price %}
+                  <small class="old-price">₦{{ item.product.old_price|floatformat:2|intcomma }}</small>
+                {% endif %}
+              </div>
+              <div class="item-remove">
+                <form method="POST" action="{% url 'removeInCart' item.id %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="remove-btn">Remove</button>
+                </form>
+              </div>
+            </div>
+            {% endfor %}
+          {% else %}
+            <p class="empty-cart-message">Your cart is empty.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Order Summary -->
+    <div class="col-lg-4">
+      <div class="summary-card">
+        <div class="card-header">
+          <h5 class="mb-0">Order Summary</h5>
+        </div>
+        <div class="card-body">
+          <div class="summary-line">
+            <span>Item(s) total:</span>
+            <span id="summary-total-before-discount">₦{{ cart_total_before_discount|floatformat:2|intcomma }}</span>
+          </div>
+          <div class="summary-line">
+            <span>Discount:</span>
+            <span id="summary-discount" class="discount-amount">₦{{ cart_discount_total|floatformat:2|intcomma }}</span>
+          </div>
+          <hr class="summary-hr">
+          <div class="summary-line total-line">
+            <span>Total:</span>
+            <span id="summary-total">₦{{ cart_total|floatformat:2|intcomma }}</span>
+          </div>
+          <form method="POST" action="{% url 'checkout' %}">
+              {% csrf_token %}
+                <button id="checkout-button" class="checkout-btn">
+                 Checkout ({{ cart_items|length }})
+               </button>
+            </form>
+
+          <p class="checkout-note">
+            You will not be charged until you review this order on the next page.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ✅ ADD THE JAVASCRIPT LOGIC -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+
+  function updateCart(productId, action, row) {
+    fetch("{% url 'update_cart' %}", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": csrftoken,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: `product_id=${productId}&action=${action}`
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.error) return;
+      console.log("Updated quantity to:", data.quantity);
+
+      // Update quantity input
+      const qtyInput = row.querySelector(".quantity-input");
+      qtyInput.value = data.quantity;
+
+      const qtyDisplay = row.querySelector(".item-quantity-display");
+      qtyDisplay.textContent = `Quantity: ${data.quantity}`;
+
+      // Update item total
+      row.querySelector(".item-subtotal").textContent = data.item_total;
+
+      // Update summary
+      document.getElementById("summary-total").textContent = data.cart_total;
+      document.getElementById("summary-total-before-discount").textContent = data.cart_total_before_discount;
+      document.getElementById("summary-discount").textContent = "−" + data.cart_discount_total;
+    });
+  }
+
+  document.querySelectorAll(".cart-item-row").forEach(row => {
+    const productId = row.dataset.productId;
+
+    row.querySelector(".increase-qty-btn").addEventListener("click", () => {
+      updateCart(productId, "increase", row);
+    });
+
+    row.querySelector(".decrease-qty-btn").addEventListener("click", () => {
+      updateCart(productId, "decrease", row);
+    });
+  });
+});
+</script>
+
+
+{% endblock %}

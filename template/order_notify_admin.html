@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>New Order Alert</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f8f8f8; color: #333; padding: 20px; }
+    .container { background: white; padding: 20px; border-radius: 10px; max-width: 600px; margin: auto; }
+    h2 { color: #c0392b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background: #f2f2f2; }
+    .footer { font-size: 13px; color: #999; margin-top: 30px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>📦 New Order Received</h2>
+    <p>A new order has been placed by <strong>{{ name }}</strong>.</p>
+
+    <h3>🧾 Order Details (Ref: {{ order_ref }})</h3>
+
+<table>
+  <tr>
+    <th>Item</th>
+    <th>Package</th>
+    <th>Quantity</th>
+    <th>Price (₦)</th>
+    <th>Total (₦)</th>
+  </tr>
+  {% for item in cart_items %}
+  <tr>
+    <td>{{ item.name }}</td>
+    <td>{{ item.package }}</td>
+    <td>{{ item.quantity }}</td>
+    <td>{{ item.price|floatformat:2 }}</td>
+    <td>{{ item.subtotal|floatformat:2 }}</td>
+  </tr>
+  {% endfor %}
+  <tr>
+    <td colspan="4" style="text-align:right"><strong>Total:</strong></td>
+    <td><strong>₦{{ total_price|floatformat:2 }}</strong></td>
+  </tr>
+</table>
+
+
+    <h4>Customer Info</h4>
+    <p>
+      <strong>Customer:</strong> {{ name }}<br>
+      <strong>Email:</strong> {{ email }}<br>
+      <strong>Phone:</strong> {{ phone_no }}<br>
+      <strong>Address:</strong> {{ address1 }}{% if address2 %}, {{ address2 }}{% endif %}<br>
+      {{ city }}, {{ state }} - {{ postal }}, {{ country }}
+    </p>
+
+    <div class="footer">
+      &copy; {{ year }} FoodBeverage Admin Notification
+    </div>
+  </div>
+</body>
+</html>
