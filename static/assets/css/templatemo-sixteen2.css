@@ -1029,7 +1029,7 @@ footer .inner-content p a {
     top:20%;
     transform: translateY(20%);
     justify-content: start;
-    gap: 0px;
+    gap: 10px;
     >form{
     >button{
       margin: auto;
