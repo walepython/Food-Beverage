@@ -154,11 +154,12 @@ MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 
 AUTH_USER_MODEL = 'staticApp.Users'
 
-LOGIN_REDIRECT_URL = 'index'
 
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'index'
-LOGOUT_REDIRECT_URL = 'index'
+
+LOGIN_URL = '/register/login/'
+LOGIN_REDIRECT_URL = '/page/dashboard/'
+LOGOUT_REDIRECT_URL = '/register/login/'
+
 
 
 
