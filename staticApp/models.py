@@ -82,7 +82,7 @@ class Product(models.Model):
         price_per_paint = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
         price_per_bag = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
 
-        price_choice = models.CharField(max_length=30, choices= PRICE_CHOICES, default='Per_bag')
+        price_choice = models.CharField(max_length=30, choices= PRICE_CHOICES, default='Per_paint')
         quantity = models.IntegerField(null=True,blank=True)
         old_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
         discount_percent = models.PositiveIntegerField(blank=True, null=True, editable=False)

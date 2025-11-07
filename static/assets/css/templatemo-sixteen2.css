@@ -1288,7 +1288,7 @@ footer .inner-content p a {
 
     gap: 50px;
     max-width: 1200px;
-    margin: 40px auto;
+    margin: 80px auto;
     padding: 20px;
     font-family: Arial, sans-serif;
 }
@@ -1485,7 +1485,7 @@ footer .inner-content p a {
     >button{
     width:500px;
     height: 45px;
-    background-color: #5C2D5A;
+    background-color: #f33f3f;
     color: white;
     border: none;
     border-radius: 5px;
@@ -1537,13 +1537,284 @@ footer .inner-content p a {
   margin-bottom: 8px;
 }
 
+.price-selector {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Label */
+.price-selector label {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.95rem;
+  margin-bottom: 6px;
+}
+
+/* Dropdown */
+.price-dropdown {
+  width: 100%;
+  max-width: 150px;
+  padding: 10px 14px;
+  border: 1.5px solid #f33f3f;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #333;
+  background-color: #fff;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+}
+
+/* Hover effect */
+.price-dropdown:hover {
+  border-color: #0078ff;
+  box-shadow: 0 0 6px rgba(0,120,255,0.25);
+}
+
+/* Focused state */
+.price-dropdown:focus {
+  outline: none;
+  border-color: #f33f3f;
+  box-shadow: 0 0 8px rgba(0,120,255,0.35);
+}
+
+/* Dropdown options */
+.price-dropdown option {
+  color: #333;
+  background-color: #fff;
+}
+
+/* Responsive tweak */
+@media (max-width: 600px) {
+  .price-dropdown {
+    width: 100%;
+    max-width: 100%;
+  }
+}
 
 /* --- Responsive --- */
 
-@media (max-width: 768px) {
+/* =======================================
+   Media Queries for Responsiveness
+   ======================================= */
+
+/* Small devices (phones, 576px and down) */
+@media (max-width: 575.98px) {
+    .product-detail-container {
+        grid-template-columns: 1fr; /* Single column layout for very small screens */
+        gap: 20px;
+        padding: 10px;
+        margin: 60px auto;
+    }
+
+    .product-gallery {
+        margin-bottom: 20px; /* Space below image on mobile */
+    }
+
+    .gallery-nav {
+        width: 30px;
+        height: 30px;
+        font-size: 16px;
+    }
+
+    .product-info {
+        padding: 0 10px; /* Add some horizontal padding */
+    }
+
+    .share-button1, .product-title {
+        position: static; /* Remove absolute positioning on small screens */
+        font-size: 24px;
+        text-align: center; /* Center align title */
+        margin: 10px 0;
+    }
+
+    .product-rating {
+        justify-content: center; /* Center stars and reviews */
+        margin-bottom: 15px;
+    }
+
+    .price-box {
+        padding: 15px;
+        text-align: center; /* Center price info */
+    }
+
+    .price-line {
+        justify-content: center; /* Center prices */
+        margin-bottom: 5px;
+    }
+
+    .current-price {
+        font-size: 24px;
+    }
+
+    .old-price {
+        font-size: 18px;
+    }
+
+    .stock-status {
+        justify-content: center; /* Center stock status */
+    }
+
+    .product-description {
+        font-size: 15px;
+        margin-bottom: 20px;
+        text-align: center; /* Center description */
+    }
+
+    .qty {
+        text-align: center; /* Center quantity label */
+    }
+
+    .quantity-selector {
+        margin-left: auto;
+        margin-right: auto; /* Center quantity selector */
+        margin-bottom: 20px;
+    }
+
+    .cart-view1 form button {
+        width: 100%; /* Full width button on small screens */
+        max-width: 300px; /* Prevent it from being too wide on larger phones */
+        display: block; /* Ensure it takes full width */
+        margin: 0 auto; /* Center the button */
+    }
+
+    .vendor-box {
+        position: static; /* Remove absolute positioning */
+        width: auto; /* Take full available width */
+        margin: 30px 10px 0 10px; /* Adjust margin */
+        text-align: center;
+    }
+}
+
+/* Medium devices (tablets, 576px and up) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .product-detail-container {
+        grid-template-columns: 1fr; /* Still a single column for tablets */
+        gap: 30px;
+        padding: 15px;
+        margin: 80px auto;
+    }
+
+    .product-info {
+        padding: 0 20px;
+    }
+
+    .share-button1, .product-title {
+        position: static; /* Remove absolute positioning */
+        font-size: 28px;
+        text-align: left;
+        margin-top: 0;
+    }
+
+    .product-rating {
+        justify-content: flex-start; /* Align stars to left */
+    }
+
+    .price-box {
+        text-align: left;
+    }
+
+    .price-line, .stock-status {
+        justify-content: flex-start; /* Align price and stock to left */
+    }
+
+    .product-description {
+        text-align: left;
+    }
+
+    .qty, .quantity-selector {
+        margin-left: 0; /* Align to left */
+        margin-right: auto;
+    }
+
+    .cart-view1 form button {
+        width: 100%;
+        max-width: 400px; /* Slightly wider button */
+        margin: 0; /* Align to left */
+    }
+
+    .vendor-box {
+        position: static; /* Remove absolute positioning */
+        width: auto;
+        margin: 40px 20px 0 20px;
+        text-align: left;
+    }
+}
+
+/* Large devices (desktops, 768px and up) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .product-detail-container {
+        grid-template-columns: 1fr 1.2fr; /* Slightly larger right column for details */
+        gap: 40px;
+        padding: 25px;
+        margin-top:80px;
+    }
+
+    /* Revert to original desktop styles where applicable */
+    .product-title {
+        position: absolute;
+        top: 40px;
+        right: 20px;
+        font-size: 30px; /* Slightly smaller for this breakpoint */
+    }
+
+    .share-button1 {
+        font-size: 28px;
+    }
+
+    .cart-view1 form button {
+        width: 400px; /* Adjust button width */
+    }
+
+    .vendor-box {
+        top: 105%; /* Relative to .product-info parent */
+        left: 0; /* Adjust left positioning */
+        width: 350px; /* Adjust width */
+    }
+}
+
+/* Extra large devices (large desktops, 992px and up) */
+@media (min-width: 992px) {
+    /* No major changes needed as your base CSS seems suitable for large screens */
+    .product-detail-container {
+        grid-template-columns: 1fr 1fr; /* Two equal columns */
+        gap: 50px;
+        max-width: 1200px;
+        margin: 80px auto;
+        padding: 20px;
+    }
+
+    /* Ensure these are back to default for larger screens */
+    .product-title {
+        position: absolute;
+        top: 40px;
+        right: 20px;
+        font-size: 32px;
+    }
+
+    .share-button1 {
+        font-size: 32px;
+    }
+
+    .cart-view1 form button {
+        width: 500px; /* Original width */
+    }
+
+     .vendor-box {
+        position: absolute;
+        top: 105%;
+        left: 10%; /* Revert to original positioning */
+        width: 450px; /* Revert to original width */
+    }
+}
+
+/*@media (max-width: 768px) {
     .product-detail-container {
         grid-template-columns: 1fr;
-/* Stack columns on mobile */
+*//* Stack columns on mobile *//*
 
     }
     .product-title { font-size: 24px; }
@@ -1553,7 +1824,7 @@ footer .inner-content p a {
       top:196%;
       left:5%;
     }
-}
+}*/
 
 @media (max-width: 992px) {
 	.navbar .navbar-brand {

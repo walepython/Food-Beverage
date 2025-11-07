@@ -76,20 +76,28 @@
         <p class="product-description">{{ product.description|slice:":150" }}...</p>
 
            {% if price_options %}
-             <input type="hidden" id="price_per_paint" value="{{ product.price_per_bag }}">
-             <input type="hidden" id="price_per_bag" value="{{ product.price_per_paint }}">
-                      <label for="price_choice">Choose Package:</label>
-                     <select id="price_choice" class="form-select"
-                    data-price-bag="{{ product.price_per_bag }}"
-                    data-price-paint="{{ product.price_per_paint }}"
-                    data-price-tuba="{{ product.price_per_paint }}"
-                    data-price-pack="{{ product.price_per_bag }}">
-              {% for value, label in price_options %}
-                <option value="{{ value }}">{{ label }}</option>
-              {% endfor %}
-            </select>
+  <!-- Hidden price values -->
+  <input type="hidden" id="price_per_paint" value="{{ product.price_per_bag }}">
+  <input type="hidden" id="price_per_bag" value="{{ product.price_per_paint }}">
 
-        {% endif %}
+  <!-- Package selector -->
+  <div class="price-selector">
+    <label for="price_choice">Choose Package:</label>
+    <select
+      id="price_choice"
+      class="price-dropdown"
+      data-price-bag="{{ product.price_per_bag }}"
+      data-price-paint="{{ product.price_per_paint }}"
+      data-price-pack="{{ product.price_per_bag }}"
+      data-price-tuba="{{ product.price_per_paint }}"
+
+    >
+      {% for value, label in price_options %}
+        <option value="{{ value }}">{{ label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+{% endif %}
 
 
         <!--Quantity Option-->
@@ -143,8 +151,9 @@ document.addEventListener("DOMContentLoaded", function () {
         const priceMap = {
             Per_bag: select.dataset.priceBag,
             Per_paint: select.dataset.pricePaint,
-            Per_tuba: select.dataset.priceTuba,
             Per_pack: select.dataset.pricePack,
+            Per_tuba: select.dataset.priceTuba,
+
         };
 
         const selectedPrice = priceMap[value];

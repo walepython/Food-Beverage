@@ -79,8 +79,9 @@ def product_detail(request, id):
         price_options = Product.PRICE_CHOICES
     elif product.category.lower() in ['yam', 'potato']:
         price_options = [
-            ('Per_tuba', 'Per_tuba'),
             ('Per_pack', 'Per_pack'),
+            ('Per_tuba', 'Per_tuba'),
+
         ]
     else:
         # Default to model's defined choices
