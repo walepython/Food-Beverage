@@ -8,6 +8,7 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.conf import settings
 from datetime import datetime
+from staticApp.models import Profile
 from django.contrib.auth.hashers import make_password
 
 # Create your views here.
@@ -62,6 +63,8 @@ def register(request):
             last_name=lastname
         )
         user.save()
+
+        Profile.objects.create(user=user)
 
         # 📨 Send welcome email
         try:
@@ -118,4 +121,4 @@ def register(request):
 
 def logout(request):
     auth_logout(request)
-    return redirect("index")
+    return redirect("login")

@@ -401,7 +401,7 @@ def checkout(request):
 
     return render(request, 'cart.html')
 
-@login_required
+#@login_required
 def user_dashboard(request):
     user = request.user
     address = DeliveryAddress.objects.filter(user=user, is_default=True).first()
@@ -417,7 +417,7 @@ def user_account(request):
     user = request.user
     address = DeliveryAddress.objects.filter(user=user, is_default=True).first()
     orders = Order.objects.filter(user=user).order_by('-date_ordered')
-    return render(request, 'my_account.html', {
+    return render(request, 'partials/my_account.html', {
         'user': user,
         'address': address,
         'orders': orders,
@@ -534,9 +534,15 @@ def order_detail(request, order_id):
 
     return render(request, 'order_detail.html', {'order': order, 'order_items': order_items,'steps': steps,})
 
+
 @login_required
 def profile_details(request):
-    profile = get_object_or_404(Profile, user=request.user)
+    try:
+        profile = Profile.objects.get(user=request.user)
+    except Profile.DoesNotExist:
+        # Create profile if it doesn't exist
+        profile = Profile.objects.create(user=request.user)
+
     return render(request, 'partials/profile_details.html', {'profile': profile})
 
 @login_required

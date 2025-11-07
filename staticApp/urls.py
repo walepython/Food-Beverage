@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.urls import path
 from .views import CustomPasswordResetConfirmView
 from django.contrib.auth import views as auth_views
@@ -23,7 +24,7 @@ urlpatterns = [
 
     path("dashboard/<str:page>/", views.dashboard_partial, name="dashboard_partial"),
     path('edit-address/', views.edit_address, name='edit_address'),
-    path('dashboard/', views.user_dashboard, name='dashboard'),
+    path('dashboard/', login_required(views.user_dashboard), name='dashboard'),
     path('user-account/', views.user_account, name='account'),
     path('orders/', views.orders, name='orders'),
     path('orders/<int:order_id>/', views.order_detail, name='order_detail'),
