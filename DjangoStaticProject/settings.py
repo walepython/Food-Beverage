@@ -27,6 +27,7 @@ SECRET_KEY = 'django-insecure-v**0@li(0#f4+o$#g8+^r1%ohai$$fe-jdm-i4yvia%c%7ane^
 DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1',
+    'waminisce.pythonanywhere.com',
     'localhost',
     '.ngrok-free.dev',
     'nonallergenic-unfarming-chloe.ngrok-free.dev']
@@ -34,6 +35,7 @@ ALLOWED_HOSTS = ['127.0.0.1',
 CSRF_TRUSTED_ORIGINS = [
     'https://nonallergenic-unfarming-chloe.ngrok-free.dev',
     'https://*.ngrok-free.dev',
+    'https://waminisce.pythonanywhere.com',
 ]
 
 # Extract domain without http://
