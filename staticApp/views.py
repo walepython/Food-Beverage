@@ -79,8 +79,9 @@ def product_detail(request, id):
         price_options = Product.PRICE_CHOICES
     elif product.category.lower() in ['yam', 'potato']:
         price_options = [
-            ('Per_pack', 'Per_pack'),
             ('Per_tuba', 'Per_tuba'),
+            ('Per_pack', 'Per_pack'),
+
 
         ]
     else:
@@ -106,10 +107,24 @@ def cart_view(request):
         cart = None
         cart_items = []
 
+    for item in cart_items:
+        print(f"Item: {item.product.name}")
+        print(f"Product Price Choice: {item.product.price_choice}")  # From product
+        print(f"CartItem Package: {item.package}")  # From cart item (form selection)
+        print(f"Current Price: {item.display_unit_price}")
+        print(f"Old Price: {item.product.old_price}")
+        print(f"Custom Price: {item.custom_price}")
+        print(f"Quantity: {item.quantity}")
+        print(f"Subtotal: {item.subtotal()}")
+        print(f"Old Total: {item.old_total_price}")
+        print("---")
+
     # Use model methods for totals
     cart_total = cart.total_price() if cart else 0
     cart_total_before_discount = sum(item.old_total_price for item in cart_items)
-    cart_discount_total = cart_total_before_discount - cart_total
+
+
+    cart_discount_total = max(0, cart_total_before_discount - cart_total)
 
     context = {
         'cart_items': cart_items,
@@ -129,48 +144,59 @@ def add_to_cart(request, product_id):
     selected_price = request.POST.get("selected_price")
     quantity = int(request.POST.get("quantity", 1))
 
+    # DEBUG: Print what we're receiving from the form
+    print(f"DEBUG - Form data:")
+    print(f"Package from form: {package}")
+    print(f"Selected price: {selected_price}")
+    print(f"Product price_choice: {product.price_choice}")
+    print(f"Product price_per_paint: {product.price_per_paint}")
+    print(f"Product price_per_bag: {product.price_per_bag}")
+
     # Determine the actual price to use
     if selected_price:
         try:
             custom_price = Decimal(selected_price)
         except:
-            custom_price = product.price
+            # Fallback to product price based on package FROM FORM
+            if package == 'Per_paint' and product.price_per_paint:
+                custom_price = product.price_per_paint
+            elif package == 'Per_bag' and product.price_per_bag:
+                custom_price = product.price_per_bag
+            else:
+                custom_price = getattr(product, 'current_price', 0) or 0
     else:
-        # Fallback to product price based on package
+        # Use product price based on package FROM FORM
         if package == 'Per_paint' and product.price_per_paint:
             custom_price = product.price_per_paint
         elif package == 'Per_bag' and product.price_per_bag:
             custom_price = product.price_per_bag
         else:
-            custom_price = product.price
+            custom_price = getattr(product, 'current_price', 0) or 0
 
     # Check if same product with same package already exists
     cart_item = CartItem.objects.filter(
         cart=cart,
         product=product,
-        package=package
+        package=package  # This uses the package FROM FORM
     ).first()
 
     if cart_item:
-        # Update existing item
         cart_item.quantity += quantity
         cart_item.custom_price = custom_price
         cart_item.save()
         message = f"Updated '{product.name}' ({package}) quantity in your cart."
     else:
-        # Create new item
         cart_item = CartItem.objects.create(
             cart=cart,
             product=product,
-            package=package,
+            package=package,  # This stores the package FROM FORM
             custom_price=custom_price,
             quantity=quantity
         )
         message = f"'{product.name}' ({package}) has been added to your cart."
 
     messages.success(request, message)
-    return redirect('cart')  # Redirect to cart page instead
-
+    return redirect('cart')
 
 @require_POST
 @login_required

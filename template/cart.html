@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-{% load humanize %} <!-- Django's humanize library for nice number formatting -->
+{% load humanize %}
 
 {% block body %}
 
@@ -31,7 +31,7 @@
         <div class="card-body">
           {% if cart_items %}
             {% for item in cart_items %}
-            <div class="cart-item-row" id="cart-item-{{ item.product.id }}" data-product-id="{{ item.product.id }}" data-product-price="{{ item.product.price }}">
+            <div class="cart-item-row" id="cart-item-{{ item.product.id }}" data-product-id="{{ item.product.id }}">
 
               <div class="item-image">
                 <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
@@ -39,7 +39,7 @@
               <div class="item-details">
                 <h6 class="item-title">{{ item.product.name }}</h6>
                 <small class="item-category">{{ item.product.category }}</small>
-
+                <small class="item-package">Package: {{ item.package }}</small>
               </div>
               <small class="item-quantity-display">Quantity: {{ item.quantity }}</small>
 
@@ -50,8 +50,10 @@
               </div>
               <div class="item-price">
                 <span class="current-price item-subtotal">₦{{ item.subtotal|floatformat:2|intcomma }}</span>
-                {% if item.product.old_price and item.product.old_price > item.product.price %}
-                  <small class="old-price">₦{{ item.product.old_price|floatformat:2|intcomma }}</small>
+                {% if item.has_discount %}
+                    <small class="old-price">
+                        ₦{{ item.display_old_unit_price|floatformat:2|intcomma }}
+                    </small>
                 {% endif %}
               </div>
               <div class="item-remove">
@@ -82,7 +84,13 @@
           </div>
           <div class="summary-line">
             <span>Discount:</span>
-            <span id="summary-discount" class="discount-amount">₦{{ cart_discount_total|floatformat:2|intcomma }}</span>
+            <span id="summary-discount" class="discount-amount">
+              {% if cart_discount_total > 0 %}
+                -₦{{ cart_discount_total|floatformat:2|intcomma }}
+              {% else %}
+                ₦0.00
+              {% endif %}
+            </span>
           </div>
           <hr class="summary-hr">
           <div class="summary-line total-line">
@@ -138,7 +146,14 @@ document.addEventListener("DOMContentLoaded", function() {
       // Update summary
       document.getElementById("summary-total").textContent = data.cart_total;
       document.getElementById("summary-total-before-discount").textContent = data.cart_total_before_discount;
-      document.getElementById("summary-discount").textContent = "−" + data.cart_discount_total;
+
+      // Update discount display with proper formatting
+      const discountElement = document.getElementById("summary-discount");
+      if (parseFloat(data.cart_discount_total) > 0) {
+        discountElement.textContent = "-₦" + parseFloat(data.cart_discount_total).toFixed(2);
+      } else {
+        discountElement.textContent = "₦0.00";
+      }
     });
   }
 
@@ -155,6 +170,5 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 });
 </script>
-
 
 {% endblock %}

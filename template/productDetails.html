@@ -4,9 +4,8 @@
 {% block title %}{{ product.name }} - Details{% endblock %}
 {% block body %}
 
-
 <link rel="stylesheet" href="{% static 'assets/css/templatemo-sixteen2.css' %}">
- <div class="product-detail-container">
+<div class="product-detail-container">
 
     <!-- Left Side: Product Image Gallery -->
     <div class="product-gallery">
@@ -54,14 +53,21 @@
         <!-- Price Box -->
         <div class="price-box">
             <div class="price-line">
-                <span id="product-price" class="current-price">₦{{ product.price }}</span>
-                {% if product.old_price and product.old_price > product.price %}
-                    <span class="old-price">₦{{ product.old_price }}</span>
+                <span id="product-price" class="current-price">
+                    {% if product.price_choice == 'Per_paint' %}
+                        ₦{{ product.price_per_paint|floatformat:2 }}
+                    {% else %}
+                        ₦{{ product.price_per_bag|floatformat:2 }}
+                    {% endif %}
+                </span>
+                <!-- Show old price based on current price_choice -->
+                {% if product.price_choice == 'Per_paint' and product.old_per_paint and product.old_per_paint > product.price_per_paint %}
+                    <span class="old-price">₦{{ product.old_per_paint|floatformat:2 }}</span>
+                {% elif product.price_choice == 'Per_bag' and product.old_per_bag and product.old_per_bag > product.price_per_bag %}
+                    <span class="old-price">₦{{ product.old_per_bag|floatformat:2 }}</span>
                 {% endif %}
             </div>
-            {% if product.discount_percent > 0 %}
-                <span class="save-badge">Save {{ product.discount_percent }}%</span>
-            {% endif %}
+
             <div class="stock-status">
                 {% if product.stock_quantity > 0 %}
                     <i class="fa fa-check-circle in-stock"></i> In Stock
@@ -75,67 +81,55 @@
         <!-- Product Description -->
         <p class="product-description">{{ product.description|slice:":150" }}...</p>
 
-           {% if price_options %}
-  <!-- Hidden price values -->
-  <input type="hidden" id="price_per_paint" value="{{ product.price_per_bag }}">
-  <input type="hidden" id="price_per_bag" value="{{ product.price_per_paint }}">
-
-  <!-- Package selector -->
-  <div class="price-selector">
-    <label for="price_choice">Choose Package:</label>
-    <select
-      id="price_choice"
-      class="price-dropdown"
-      data-price-bag="{{ product.price_per_bag }}"
-      data-price-paint="{{ product.price_per_paint }}"
-      data-price-pack="{{ product.price_per_bag }}"
-      data-price-tuba="{{ product.price_per_paint }}"
-
-    >
-      {% for value, label in price_options %}
-        <option value="{{ value }}">{{ label }}</option>
-      {% endfor %}
-    </select>
-  </div>
-{% endif %}
-
+        <!-- Package selector -->
+        <div class="price-selector">
+            <label for="price_choice">Choose Package:</label>
+            <select
+                id="price_choice"
+                class="price-dropdown"
+                data-price-bag="{{ product.price_per_bag|default:0 }}"
+                data-price-paint="{{ product.price_per_paint|default:0 }}"
+                data-old-price-bag="{{ product.old_per_bag|default:0 }}"
+                data-old-price-paint="{{ product.old_per_paint|default:0 }}"
+            >
+                <option value="Per_paint">Per Paint </option>
+                <option value="Per_bag">Per Bag </option>
+            </select>
+        </div>
 
         <!--Quantity Option-->
-         <p class="qty">Quantity</p>
-         <div class="quantity-selector">
-               <button id="decrease" class="quantity-btn">−</button>
-               <input id="quantity" type="text" class="quantity-input" value="1">
-               <button id="increase" class="quantity-btn">+</button>
-         </div>
+        <p class="qty">Quantity</p>
+        <div class="quantity-selector">
+            <button id="decrease" class="quantity-btn">−</button>
+            <input id="quantity" type="text" class="quantity-input" value="1">
+            <button id="increase" class="quantity-btn">+</button>
+        </div>
+
         <!-- Add to Cart  -->
         <div class="cart-view1">
-             <form method="POST" action="{% url 'add_to_cart' product.id %}">
-              {% csrf_token %}
+            <form method="POST" action="{% url 'add_to_cart' product.id %}">
+                {% csrf_token %}
                 <input type="hidden" name="price_choice" id="selected-package">
                 <input type="hidden" name="selected_price" id="selected-price">
                 <input type="hidden" name="quantity" id="selected-quantity" value="1">
                 <button type="submit">Add to Cart</button>
             </form>
-
         </div>
-
     </div>
-      <!-- Vendor Info -->
+
+    <!-- Vendor Info -->
     {% if product.vendor %}
     <div class="vendor-box mt-5">
-      <h3>Sold by: {{ product.vendor.username }}</h3>
-      <p>Contact vendor for bulk or special orders.</p>
+        <h3>Sold by: {{ product.vendor.username }}</h3>
+        <p>Contact vendor for bulk or special orders.</p>
     </div>
     {% endif %}
 </div>
 
-   <!-- "Back to Top" button -->
-   <button class="back-to-top" title="Go to top">↑</button>
+<!-- "Back to Top" button -->
+<button class="back-to-top" title="Go to top">↑</button>
 
-
-
-
-  <script>
+<script>
 document.addEventListener("DOMContentLoaded", function () {
     const select = document.getElementById("price_choice");
     const priceDisplay = document.getElementById("product-price");
@@ -146,36 +140,61 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (!select || !priceDisplay) return;
 
-    select.addEventListener("change", function () {
+    function updatePriceDisplay() {
         const value = select.value;
         const priceMap = {
             Per_bag: select.dataset.priceBag,
-            Per_paint: select.dataset.pricePaint,
-            Per_pack: select.dataset.pricePack,
-            Per_tuba: select.dataset.priceTuba,
+            Per_paint: select.dataset.pricePaint
+        };
 
+        const oldPriceMap = {
+            Per_bag: select.dataset.oldPriceBag,
+            Per_paint: select.dataset.oldPricePaint
         };
 
         const selectedPrice = priceMap[value];
+        const selectedOldPrice = oldPriceMap[value];
+
         if (selectedPrice) {
+            // Update current price display
             priceDisplay.textContent = `₦${parseFloat(selectedPrice).toFixed(2)}`;
+
+            // Update hidden inputs
             selectedPackageInput.value = value;
             selectedPriceInput.value = selectedPrice;
-        }
-    });
 
-    // Set initial values
-    selectedPackageInput.value = select.value;
-    selectedPriceInput.value = priceDisplay.textContent.replace("₦", "").trim();
+            // Update old price display if exists
+            const oldPriceElement = document.querySelector('.old-price');
+            if (selectedOldPrice && parseFloat(selectedOldPrice) > parseFloat(selectedPrice)) {
+                if (!oldPriceElement) {
+                    // Create old price element if it doesn't exist
+                    const oldPriceSpan = document.createElement('span');
+                    oldPriceSpan.className = 'old-price';
+                    oldPriceSpan.textContent = `₦${parseFloat(selectedOldPrice).toFixed(2)}`;
+                    priceDisplay.parentNode.appendChild(oldPriceSpan);
+                } else {
+                    oldPriceElement.textContent = `₦${parseFloat(selectedOldPrice).toFixed(2)}`;
+                }
+            } else if (oldPriceElement) {
+                // Remove old price if no discount
+                oldPriceElement.remove();
+            }
+        }
+    }
+
+    // Initial setup
+    select.addEventListener("change", updatePriceDisplay);
+    updatePriceDisplay(); // Set initial values
 
     // Quantity buttons
     document.getElementById("increase").onclick = () => {
-        quantityInput.value++;
+        quantityInput.value = parseInt(quantityInput.value) + 1;
         selectedQuantityInput.value = quantityInput.value;
     };
+
     document.getElementById("decrease").onclick = () => {
-        if (quantityInput.value > 1) {
-            quantityInput.value--;
+        if (parseInt(quantityInput.value) > 1) {
+            quantityInput.value = parseInt(quantityInput.value) - 1;
             selectedQuantityInput.value = quantityInput.value;
         }
     };
@@ -187,83 +206,3 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 {% endblock %}
-
-
-
-
-
-{% comment %}
-<div class="product-page">
-  <div class="container py-5">
-
-    <!-- Product Card -->
-    <div class="product-card row">
-      <!-- Left Column: Image -->
-      <div class="col-md-6 text-center">
-        {% if product.image %}
-          <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
-        {% else %}
-          <img src="{% static 'images/no-image.png' %}" alt="No image available" class="product-image">
-        {% endif %}
-      </div>
-
-      <!-- Right Column: Details -->
-      <div class="col-md-6">
-        <p class="product-category">{{ product.category }}</p>
-        <h1 class="product-title">{{ product.name }}</h1>
-
-        <!-- Rating -->
-        <div class="rating-box mb-3">
-          <div class="stars">★★★★<span class="inactive">★</span></div>
-          <span class="rating-score">{{ product.average_rating }}</span>
-          <a href="#reviews" class="review-link">({{ product.review_count }} Reviews)</a>
-        </div>
-
-        <!-- Price -->
-        <div class="price-box">
-          <p class="current-price">₦{{ product.price }}</p>
-          {% if product.old_price and product.old_price > product.price %}
-            <p class="old-price">₦{{ product.old_price }}</p>
-          {% endif %}
-          {% if product.discount_percent > 0 %}
-            <p class="discount">You save {{ product.discount_percent }}%</p>
-          {% endif %}
-        </div>
-
-        <!-- Description -->
-        <p class="product-description">{{ product.description }}</p>
-
-        <!-- Stock Info -->
-        {% if product.is_available %}
-          <p class="stock in-stock">
-            <span class="dot green"></span> In Stock ({{ product.stock_quantity }} items left)
-          </p>
-        {% else %}
-          <p class="stock out-of-stock">
-            <span class="dot red"></span> Out of Stock
-          </p>
-        {% endif %}
-
-        <!-- Quantity & Button -->
-        <div class="add-to-cart-box">
-          <div class="quantity-box">
-            <button id="decrease" class="qty-btn">−</button>
-            <input id="quantity" type="number" value="1" min="1" class="qty-input" />
-            <button id="increase" class="qty-btn">+</button>
-          </div>
-          <button class="add-btn">Add to Cart</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Vendor Info -->
-    {% if product.vendor %}
-    <div class="vendor-box mt-5">
-      <h3>Sold by: {{ product.vendor.username }}</h3>
-      <p>Contact vendor for bulk or special orders.</p>
-    </div>
-    {% endif %}
-
-  </div>
-</div>
-{% endcomment %}
