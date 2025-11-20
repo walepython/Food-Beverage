@@ -89,11 +89,16 @@
                 class="price-dropdown"
                 data-price-bag="{{ product.price_per_bag|default:0 }}"
                 data-price-paint="{{ product.price_per_paint|default:0 }}"
+                data-price-tuba="{{ product.price_per_tuba|default:0 }}"
+                data-price-pack="{{ product.price_per_pack|default:0 }}"
                 data-old-price-bag="{{ product.old_per_bag|default:0 }}"
                 data-old-price-paint="{{ product.old_per_paint|default:0 }}"
-            >
-                <option value="Per_paint">Per Paint </option>
-                <option value="Per_bag">Per Bag </option>
+                data-old-price-tuba="{{ product.old_per_tuba|default:0 }}"
+                data-old-price-pack="{{ product.old_per_pack|default:0 }}"
+    >
+                {% for value, label in price_options %}
+                    <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
             </select>
         </div>
 
@@ -130,7 +135,8 @@
 <button class="back-to-top" title="Go to top">↑</button>
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
+
+    document.addEventListener("DOMContentLoaded", function () {
     const select = document.getElementById("price_choice");
     const priceDisplay = document.getElementById("product-price");
     const selectedPackageInput = document.getElementById("selected-package");
@@ -144,12 +150,16 @@ document.addEventListener("DOMContentLoaded", function () {
         const value = select.value;
         const priceMap = {
             Per_bag: select.dataset.priceBag,
-            Per_paint: select.dataset.pricePaint
+            Per_paint: select.dataset.pricePaint,
+            Per_tuba: select.dataset.priceTuba,
+            Per_pack: select.dataset.pricePack
         };
 
         const oldPriceMap = {
             Per_bag: select.dataset.oldPriceBag,
-            Per_paint: select.dataset.oldPricePaint
+            Per_paint: select.dataset.oldPricePaint,
+            Per_tuba: select.dataset.oldPriceTuba,
+            Per_pack: select.dataset.oldPricePack
         };
 
         const selectedPrice = priceMap[value];
@@ -182,9 +192,10 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Initial setup
-    select.addEventListener("change", updatePriceDisplay);
-    updatePriceDisplay(); // Set initial values
+    // Initial call and event listener
+    updatePriceDisplay();
+    select.addEventListener('change', updatePriceDisplay);
+});
 
     // Quantity buttons
     document.getElementById("increase").onclick = () => {
