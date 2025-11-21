@@ -66,26 +66,34 @@ def product_page(request):
 
     return render(request, 'products.html', context)
 
+
 def product_detail(request, id):
     product = get_object_or_404(Product, id=id, is_available=True)
 
-
+    # Increment review count
     Product.objects.filter(id=id).update(review_count=F('review_count') + 1)
-
     product.refresh_from_db()
 
-    price_options = []
-    if product.category.lower() in ['rice', 'beans']:
-        price_options = Product.PRICE_CHOICES
-    elif product.category.lower() in ['yam', 'potato']:
+    # Determine price options based on category
+    category_lower = product.category.lower()
+
+    if category_lower in ['rice', 'beans']:
         price_options = [
-            ('Per_tuba', 'Per_tuba'),
-            ('Per_pack', 'Per_pack'),
-
-
+            ('Per_bag', 'Per Bag'),
+            ('Per_paint', 'Per Paint')
         ]
+        # Set default price choice for these categories
+        if not product.price_choice:
+            product.price_choice = 'Per_bag'
+    elif category_lower in ['yam', 'potato']:
+        price_options = [
+            ('Per_tuba', 'Per Tuba'),
+            ('Per_pack', 'Per Pack')
+        ]
+        # Set default price choice for these categories
+        if not product.price_choice:
+            product.price_choice = 'Per_tuba'
     else:
-        # Default to model's defined choices
         price_options = Product.PRICE_CHOICES
 
     return render(request, 'productDetails.html', {
@@ -115,7 +123,7 @@ def cart_view(request):
         print(f"Old Price: {item.product.old_price}")
         print(f"Custom Price: {item.custom_price}")
         print(f"Quantity: {item.quantity}")
-        print(f"Subtotal: {item.subtotal()}")
+        print(f"Subtotal: {item.subtotal}")
         print(f"Old Total: {item.old_total_price}")
         print("---")
 

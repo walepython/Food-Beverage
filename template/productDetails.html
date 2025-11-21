@@ -55,17 +55,27 @@
             <div class="price-line">
                 <span id="product-price" class="current-price">
                     {% if product.price_choice == 'Per_paint' %}
-                        ₦{{ product.price_per_paint|floatformat:2 }}
-                    {% else %}
-                        ₦{{ product.price_per_bag|floatformat:2 }}
-                    {% endif %}
+                ₦{{ product.price_per_paint|floatformat:2 }}
+            {% elif product.price_choice == 'Per_bag' %}
+                ₦{{ product.price_per_bag|floatformat:2 }}
+            {% elif product.price_choice == 'Per_tuba' %}
+                ₦{{ product.price_per_tuba|floatformat:2 }}
+            {% elif product.price_choice == 'Per_pack' %}
+                ₦{{ product.price_per_pack|floatformat:2 }}
+            {% else %}
+                ₦{{ product.price_per_bag|floatformat:2 }}
+            {% endif %}
                 </span>
                 <!-- Show old price based on current price_choice -->
                 {% if product.price_choice == 'Per_paint' and product.old_per_paint and product.old_per_paint > product.price_per_paint %}
-                    <span class="old-price">₦{{ product.old_per_paint|floatformat:2 }}</span>
-                {% elif product.price_choice == 'Per_bag' and product.old_per_bag and product.old_per_bag > product.price_per_bag %}
-                    <span class="old-price">₦{{ product.old_per_bag|floatformat:2 }}</span>
-                {% endif %}
+            <span class="old-price">₦{{ product.old_per_paint|floatformat:2 }}</span>
+        {% elif product.price_choice == 'Per_bag' and product.old_per_bag and product.old_per_bag > product.price_per_bag %}
+            <span class="old-price">₦{{ product.old_per_bag|floatformat:2 }}</span>
+        {% elif product.price_choice == 'Per_tuba' and product.old_per_tuba and product.old_per_tuba > product.price_per_tuba %}
+            <span class="old-price">₦{{ product.old_per_tuba|floatformat:2 }}</span>
+        {% elif product.price_choice == 'Per_pack' and product.old_per_pack and product.old_per_pack > product.price_per_pack %}
+            <span class="old-price">₦{{ product.old_per_pack|floatformat:2 }}</span>
+        {% endif %}
             </div>
 
             <div class="stock-status">
@@ -135,8 +145,7 @@
 <button class="back-to-top" title="Go to top">↑</button>
 
 <script>
-
-    document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {
     const select = document.getElementById("price_choice");
     const priceDisplay = document.getElementById("product-price");
     const selectedPackageInput = document.getElementById("selected-package");
@@ -144,10 +153,15 @@
     const selectedQuantityInput = document.getElementById("selected-quantity");
     const quantityInput = document.getElementById("quantity");
 
-    if (!select || !priceDisplay) return;
+    if (!select || !priceDisplay) {
+        console.log('Required elements not found');
+        return;
+    }
 
     function updatePriceDisplay() {
         const value = select.value;
+        console.log('Selected value:', value); // Debug log
+
         const priceMap = {
             Per_bag: select.dataset.priceBag,
             Per_paint: select.dataset.pricePaint,
@@ -165,21 +179,27 @@
         const selectedPrice = priceMap[value];
         const selectedOldPrice = oldPriceMap[value];
 
-        if (selectedPrice) {
+        console.log('Price map:', priceMap); // Debug log
+        console.log('Selected price:', selectedPrice); // Debug log
+
+        if (selectedPrice && parseFloat(selectedPrice) > 0) {
             // Update current price display
             priceDisplay.textContent = `₦${parseFloat(selectedPrice).toFixed(2)}`;
 
             // Update hidden inputs
-            selectedPackageInput.value = value;
-            selectedPriceInput.value = selectedPrice;
+            if (selectedPackageInput) selectedPackageInput.value = value;
+            if (selectedPriceInput) selectedPriceInput.value = selectedPrice;
 
             // Update old price display if exists
             const oldPriceElement = document.querySelector('.old-price');
-            if (selectedOldPrice && parseFloat(selectedOldPrice) > parseFloat(selectedPrice)) {
+            if (selectedOldPrice && parseFloat(selectedOldPrice) > 0 && parseFloat(selectedOldPrice) > parseFloat(selectedPrice)) {
                 if (!oldPriceElement) {
                     // Create old price element if it doesn't exist
                     const oldPriceSpan = document.createElement('span');
                     oldPriceSpan.className = 'old-price';
+                    oldPriceSpan.style.textDecoration = 'line-through';
+                    oldPriceSpan.style.color = '#999';
+                    oldPriceSpan.style.marginLeft = '10px';
                     oldPriceSpan.textContent = `₦${parseFloat(selectedOldPrice).toFixed(2)}`;
                     priceDisplay.parentNode.appendChild(oldPriceSpan);
                 } else {
@@ -189,31 +209,38 @@
                 // Remove old price if no discount
                 oldPriceElement.remove();
             }
+
+            // Update quantity input if needed
+            if (selectedQuantityInput) selectedQuantityInput.value = quantityInput.value;
+        } else {
+            console.log('No valid price found for:', value);
         }
     }
 
-    // Initial call and event listener
-    updatePriceDisplay();
-    select.addEventListener('change', updatePriceDisplay);
-});
-
-    // Quantity buttons
-    document.getElementById("increase").onclick = () => {
+    // Quantity buttons functionality
+    document.getElementById("increase").addEventListener("click", function() {
         quantityInput.value = parseInt(quantityInput.value) + 1;
-        selectedQuantityInput.value = quantityInput.value;
-    };
+        if (selectedQuantityInput) selectedQuantityInput.value = quantityInput.value;
+    });
 
-    document.getElementById("decrease").onclick = () => {
+    document.getElementById("decrease").addEventListener("click", function() {
         if (parseInt(quantityInput.value) > 1) {
             quantityInput.value = parseInt(quantityInput.value) - 1;
-            selectedQuantityInput.value = quantityInput.value;
+            if (selectedQuantityInput) selectedQuantityInput.value = quantityInput.value;
         }
-    };
+    });
 
     // Update quantity hidden field when input changes
     quantityInput.addEventListener("change", function() {
-        selectedQuantityInput.value = this.value;
+        if (selectedQuantityInput) selectedQuantityInput.value = this.value;
     });
+
+    // Initial call to set default price
+    updatePriceDisplay();
+
+    // Add event listener for price selection changes
+    select.addEventListener('change', updatePriceDisplay);
 });
 </script>
+
 {% endblock %}

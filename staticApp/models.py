@@ -73,6 +73,8 @@ class Product(models.Model):
         PRICE_CHOICES = [
             ('Per_paint', 'Per_paint'),
             ('Per_bag', 'Per_bag'),
+            ('Per_tuba', 'Per_tuba'),
+            ('Per_pack', 'Per_pack'),
         ]
 
         name = models.CharField(max_length=255)
@@ -81,10 +83,15 @@ class Product(models.Model):
 
         price_per_paint = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
         price_per_bag = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-
+        price_per_tuba = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+        price_per_pack = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
         price_choice = models.CharField(max_length=30, choices= PRICE_CHOICES, default='Per_paint')
+
         quantity = models.IntegerField(null=True,blank=True)
         old_per_bag = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+        old_per_paint = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+        old_per_tuba = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)  # ADD THIS
+        old_per_pack = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)  # ADD THIS
         discount_percent = models.PositiveIntegerField(blank=True, null=True, editable=False)
 
         stock_quantity = models.PositiveIntegerField(default=0,blank=True, null=True)
@@ -92,7 +99,7 @@ class Product(models.Model):
         review_count = models.IntegerField(default=0,blank=True, null=True)
 
         size = models.CharField(max_length=2, choices=SIZE, default='M')
-        old_per_paint = models.DecimalField(max_digits=10, decimal_places=2,null=True,blank=True)
+
         # color = models.CharField(max_length=30, choices=COLOR, default='Black')
         category = models.CharField(max_length=200, default="")
 
@@ -112,34 +119,38 @@ class Product(models.Model):
             if self.pk:
                 old_instance = Product.objects.get(pk=self.pk)
 
-                # If price choice is Per_bag
-                if self.price_choice == "Per_bag":
-                    if old_instance.price_per_bag != self.price_per_bag:
-                        self.old_per_bag = old_instance.price_per_bag
+                price_fields = {
+                    'Per_bag': ('price_per_bag', 'old_per_bag'),
+                    'Per_paint': ('price_per_paint', 'old_per_paint'),
+                    'Per_tuba': ('price_per_tuba', 'old_per_tuba'),
+                    'Per_pack': ('price_per_pack', 'old_per_pack'),
+                }
 
-                # If price choice is Per_paint
+                if self.price_choice in price_fields:
+                    current_field, old_field = price_fields[self.price_choice]
+                    current_price = getattr(self, current_field)
+                    old_price = getattr(old_instance, current_field)
+
+                    if old_price is not None and current_price is not None and old_price != current_price:
+                        setattr(self, old_field, old_price)
+
+            price_mapping = {
+                'Per_bag': (self.price_per_bag, self.old_per_bag),
+                'Per_paint': (self.price_per_paint, self.old_per_paint),
+                'Per_tuba': (self.price_per_tuba, self.old_per_tuba),
+                'Per_pack': (self.price_per_pack, self.old_per_pack),
+            }
+
+            if self.price_choice in price_mapping:
+                current_price, old_price = price_mapping[self.price_choice]
+
+                if old_price and current_price and current_price < old_price and old_price > 0:
+                    self.discount_percent = min(
+                        round(((old_price - current_price) / old_price) * 100),
+                        100
+                    )
                 else:
-                    if old_instance.price_per_paint != self.price_per_paint:
-                        self.old_per_paint = old_instance.price_per_paint
-
-
-            # Calculate discount based on price_choice
-            if self.price_choice == 'Per_bag':
-                current_price = self.price_per_bag
-                old_price = self.old_per_bag
-            else:  # Per_paint
-                current_price = self.price_per_paint
-                old_price = self.old_per_paint
-
-            # Calculate discount percentage if both prices exist and current is lower
-            if (old_price and current_price and
-                current_price < old_price and
-                old_price > 0):  # Prevent division by zero
-
-                self.discount_percent = round(((old_price - current_price) / old_price) * 100)
-
-                if self.discount_percent > 100:
-                    self.discount_percent = 100
+                    self.discount_percent = 0
             else:
                 self.discount_percent = 0
 
@@ -147,19 +158,23 @@ class Product(models.Model):
 
         @property
         def current_price(self):
-            """Get the current price based on price_choice"""
-            if self.price_choice == 'Per_bag':
-                return self.price_per_bag
-            else:  # Per_paint
-                return self.price_per_paint
+            price_map = {
+                'Per_bag': self.price_per_bag,
+                'Per_paint': self.price_per_paint,
+                'Per_tuba': self.price_per_tuba,
+                'Per_pack': self.price_per_pack,
+            }
+            return price_map.get(self.price_choice)
 
         @property
         def old_price(self):
-            """Get the old price based on price_choice for discount display"""
-            if self.price_choice == 'Per_bag':
-                return self.old_per_bag
-            else:  # Per_paint
-                return self.old_per_paint
+            price_map = {
+                'Per_bag': self.old_per_bag,
+                'Per_paint': self.old_per_paint,
+                'Per_tuba': self.old_per_tuba,
+                'Per_pack': self.old_per_pack,
+            }
+            return price_map.get(self.price_choice)
 
         @property
         def has_discount(self):
@@ -176,10 +191,6 @@ class Product(models.Model):
         def __str__(self):
             return self.name
 
-        def __str__(self):
-            return self.name
-
-
 
 class Review(models.Model):
     product = models.ForeignKey(Product, related_name='reviews', on_delete=models.CASCADE)
@@ -195,7 +206,7 @@ class Cart(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def total_price(self):
-        return sum(item.subtotal() for item in self.items.all())
+        return sum(item.subtotal for item in self.items.all())
 
     def __str__(self):
         return f"Cart ({self.user})"
@@ -208,67 +219,64 @@ class CartItem(models.Model):
     package = models.CharField(max_length=50, blank=True, null=True)
     custom_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
+    @property
     def subtotal(self):
-        """Calculate current subtotal"""
         if self.custom_price:
             return self.custom_price * self.quantity
 
-        # Use price based on the package selected for this cart item
-        if self.package == 'Per_bag' and self.product.price_per_bag:
-            return self.product.price_per_bag * self.quantity
-        elif self.package == 'Per_paint' and self.product.price_per_paint:
-            return self.product.price_per_paint * self.quantity
-        else:
-            return (getattr(self.product, 'current_price', 0) or 0) * self.quantity
+        price_map = {
+            'Per_bag': self.product.price_per_bag,
+            'Per_paint': self.product.price_per_paint,
+            'Per_tuba': self.product.price_per_tuba,
+            'Per_pack': self.product.price_per_pack,
+        }
 
-    @property
-    def old_total_price(self):
-        """Calculate old price total for discount comparison"""
-        if self.package == 'Per_bag' and self.product.old_per_bag:
-            old_price = self.product.old_per_bag
-        elif self.package == 'Per_paint' and self.product.old_per_paint:
-            old_price = self.product.old_per_paint
-        else:
-            old_price = getattr(self.product, 'old_price', 0) or 0
-
-        return old_price * self.quantity
+        unit_price = price_map.get(self.package) or self.product.current_price or 0
+        return unit_price * self.quantity
 
     @property
     def display_unit_price(self):
-        """Get the unit price for display"""
         if self.custom_price:
             return self.custom_price
-        elif self.package == 'Per_bag' and self.product.price_per_bag:
-            return self.product.price_per_bag
-        elif self.package == 'Per_paint' and self.product.price_per_paint:
-            return self.product.price_per_paint
-        else:
-            return getattr(self.product, 'current_price', 0) or 0
+
+        price_map = {
+            'Per_bag': self.product.price_per_bag,
+            'Per_paint': self.product.price_per_paint,
+            'Per_tuba': self.product.price_per_tuba,
+            'Per_pack': self.product.price_per_pack,
+        }
+
+        return price_map.get(self.package) or self.product.current_price or 0
+
+    @property
+    def display_old_unit_price(self):
+        old_price_map = {
+            'Per_bag': self.product.old_per_bag,
+            'Per_paint': self.product.old_per_paint,
+            'Per_tuba': self.product.old_per_tuba,
+            'Per_pack': self.product.old_per_pack,
+        }
+
+        return old_price_map.get(self.package)
+
+    @property
+    def old_total_price(self):
+        old_price = self.display_old_unit_price or 0
+        return old_price * self.quantity
 
     @property
     def discount_amount(self):
-        """Calculate actual discount amount for this item"""
-        return max(0, self.old_total_price - self.subtotal())
+        return max(0, self.old_total_price - self.subtotal)
 
     @property
     def has_discount(self):
-        """Check if this specific cart item has a discount"""
         old_price = self.display_old_unit_price
         current_price = self.display_unit_price
         return old_price and current_price and current_price < old_price
 
-    @property
-    def display_old_unit_price(self):
-        """Get the old unit price for display based on package"""
-        if self.package == 'Per_bag' and self.product.old_per_bag:
-            return self.product.old_per_bag
-        elif self.package == 'Per_paint' and self.product.old_per_paint:
-            return self.product.old_per_paint
-        else:
-            return None
-
     def __str__(self):
         return f"{self.quantity} × {self.product.name}"
+
 
 class Contact(models.Model):
     name = models.CharField(max_length=20,null=True)
